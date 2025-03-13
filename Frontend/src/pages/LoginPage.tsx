@@ -23,6 +23,9 @@ const LoginPage: React.FC = () => {
   
       // ✅ Fix: Check if the response message is "Login successful"
       if (res.data.message === "Login successful") {
+        // Store userId in local storage
+        localStorage.setItem("userId", res.data.userId);
+        
         console.log("✅ Login Successful, Redirecting...");
         navigate("/dashboard"); // Redirect on success
       } else {
@@ -33,7 +36,6 @@ const LoginPage: React.FC = () => {
       setError(error.response?.data?.message || "Login failed, try again.");
     }
   };
-  
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:5000/auth/google";
