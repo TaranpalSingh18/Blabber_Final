@@ -8,10 +8,10 @@ const { Server } = require("socket.io")
 
 const app = express()
 app.use(express.json())
-// Update CORS to allow requests from any origin during development
+
 app.use(
   cors({
-    origin: "*", // Allow all origins in development
+    origin: "*", 
     methods: ["GET", "POST"],
     credentials: true,
   }),
@@ -33,12 +33,11 @@ mongoose
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all origins in development
+    origin: "*", 
     methods: ["GET", "POST"],
   },
 })
 
-// User Schema & Model
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
@@ -190,32 +189,29 @@ io.on("connection", (socket) => {
   })
 
   socket.on("sendMessage", async (messageData) => {
+    console.log("Received message data:", messageData);
+
     try {
-      const { senderId, receiverId, content, timestamp } = messageData
-      console.log(`Message from ${senderId} to ${receiverId}: ${content}`)
+        const { senderId, receiverId, content, timestamp } = messageData;
+        console.log(`Message from ${senderId} to ${receiverId}: ${content}`);
+        
+        if (!senderId || !receiverId || !content) {
+            console.error("Missing senderId, receiverId, or content in messageData");
+            return;
+        }
 
-      // Create and save the message
-      const newMessage = new Message({
-        senderId,
-        receiverId,
-        content,
-        timestamp: timestamp || new Date().toISOString(),
-      })
-      const savedMessage = await newMessage.save()
+        const newMessage = new Message({
+            senderId,
+            receiverId,
+            content,
+            timestamp: timestamp || new Date().toISOString(),
+        });
 
-      // Emit to the receiver if they're online
-      const receiverSocketId = onlineUsers.get(receiverId)
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit("message", savedMessage)
-      }
-
-      // Also emit back to the sender for confirmation
-      socket.emit("messageSent", savedMessage)
+        await newMessage.save();
     } catch (error) {
-      console.error("Error in sendMessage event:", error)
-      socket.emit("messageError", { error: "Failed to send message" })
+        console.error("Error sending message:", error);
     }
-  })
+});
 
   socket.on("disconnect", () => {
     // Find and remove the user from onlineUsers
