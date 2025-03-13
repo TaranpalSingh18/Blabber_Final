@@ -127,15 +127,13 @@ export default function ChatDashboard() {
         newSocket.on("message", (newMessage) => {
             console.log("📩 New message received:", newMessage);
 
-            // ✅ Ensure message is shown in correct chat (for both sender & receiver)
-            if (
-                newMessage.receiverId === localStorage.getItem("userId") || 
-                newMessage.senderId === localStorage.getItem("userId")
-            ) {
-                setMessages((prev) => [...prev, newMessage]);
-            } else {
-                console.warn("⚠️ Message does not belong to this chat, ignoring.");
-            }
+            setMessages((prev) => {
+                // ✅ Prevent duplicate messages using ID or timestamp check
+                if (!prev.some(msg => msg.timestamp === newMessage.timestamp && msg.content === newMessage.content)) {
+                    return [...prev, newMessage];
+                }
+                return prev;
+            });
         });
 
         return () => {
@@ -143,7 +141,7 @@ export default function ChatDashboard() {
             console.log("❌ WebSocket Disconnected");
         };
     }
-}, []); 
+}, []);
 
 
   useEffect(() => {
@@ -184,22 +182,17 @@ export default function ChatDashboard() {
                     return;
                 }
 
-                // ✅ Emit the message to both users
-                socket.emit("sendMessage", {
-                    senderId: savedMessage.senderId,
-                    receiverId: savedMessage.receiverId,
-                    content: savedMessage.content,
-                    timestamp: savedMessage.timestamp,
-                });
+                // ✅ Emit the message via WebSocket
+                socket.emit("sendMessage", savedMessage);
 
-                // ✅ Update both sender and receiver's chat
-                setMessages((prev) => [...prev, savedMessage]);
-
-                setMessage("");
+                // ❌ DO NOT manually add it to `setMessages`
+                setMessage(""); // Clear input field
             })
             .catch((err) => console.error("❌ Error sending message:", err));
-    };
+    }
 };
+
+
 
 const userName= localStorage.getItem("userName");
 const userEmail= localStorage.getItem("userEmail");
