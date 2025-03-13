@@ -7,7 +7,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
-  
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Reset error before new attempt
@@ -20,6 +20,8 @@ const LoginPage: React.FC = () => {
 
         // ✅ Extract userId correctly
         const userId = res.data.user?._id;
+        const userName= res.data.user?.name;
+        const userEmail= res.data.user?.email;
 
         // ✅ Ensure `userId` is received from the backend
         if (!userId) {
@@ -30,9 +32,13 @@ const LoginPage: React.FC = () => {
 
         console.log("✅ Received userId:", userId); // Debugging log
 
-        // ✅ Store `userId` in localStorage
+        // ✅ Store `userId` and `userName` in localStorage
         localStorage.setItem("userId", userId);
+        localStorage.setItem("userName", userName);
+        localStorage.setItem("userEmail", userEmail);
         console.log("✅ userId stored in localStorage:", localStorage.getItem("userId"));
+        console.log("✅ userName stored in localStorage:", localStorage.getItem("userName"));
+        console.log("✅ userEmail stored in localStorage:", localStorage.getItem("userEmail"));
 
         // Debugging: Verify immediately after setting
         if (localStorage.getItem("userId") !== userId) {

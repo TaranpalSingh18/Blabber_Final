@@ -14,6 +14,7 @@ import {
   Phone,
   MoreVertical,
 } from "lucide-react"
+import { Navigate, useNavigate } from "react-router-dom"
 
 export default function ChatDashboard() {
   // Add a loading state at the top with other state variables
@@ -197,9 +198,11 @@ export default function ChatDashboard() {
                 setMessage("");
             })
             .catch((err) => console.error("❌ Error sending message:", err));
-    }
+    };
 };
 
+const userName= localStorage.getItem("userName");
+const userEmail= localStorage.getItem("userEmail");
 
 
   return (
@@ -300,10 +303,15 @@ export default function ChatDashboard() {
               <img alt="User" className="h-full w-full object-cover" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">JP Singh</span>
-              <span className="text-xs text-gray-400">jp25singh@gmail.com</span>
+           
+              <span className="text-sm font-medium">{userName}</span>
+              <span className="text-xs text-gray-400">{userEmail}</span>
             </div>
-            <button className="ml-auto rounded-full p-2 hover:bg-gray-800">
+            <button className="ml-auto rounded-full p-2 hover:bg-gray-800" onClick={()=>{
+            localStorage.clear();
+            window.location.href = "/login";
+            }
+          }>
               <LogOut className="h-4 w-4" />
             </button>
           </div>

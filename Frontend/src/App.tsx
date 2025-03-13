@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import Footer from './pages/Footer';
+import Profile from './pages/Profile';
 
 const Layout = () => {
   const location = useLocation();
@@ -25,7 +26,9 @@ const Layout = () => {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/contact" element={<ContactPage />}
+           />
         </Routes>
       </div>
       {showFooter && <Footer />}
