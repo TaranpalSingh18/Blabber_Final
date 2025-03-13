@@ -7,35 +7,47 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
-
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Reset error before new attempt
   
     try {
-      // Send login request to backend
-      const res = await axios.post("http://localhost:5000/login", {
-        email,
-        password,
-      });
-  
-      console.log("Login Response:", res.data); // Debugging log
-  
-      // ✅ Fix: Check if the response message is "Login successful"
-      if (res.data.message === "Login successful") {
-        // Store userId in local storage
-        localStorage.setItem("userId", res.data.userId);
-        
+        // Send login request to backend
+        const res = await axios.post("http://localhost:5000/login", { email, password });
+
+        console.log("🔹 Login Response:", res.data); // Debugging log
+
+        // ✅ Extract userId correctly
+        const userId = res.data.user?._id;
+
+        // ✅ Ensure `userId` is received from the backend
+        if (!userId) {
+            console.error("❌ Error: userId is missing in backend response!");
+            setError("Login failed: Missing user ID in response.");
+            return;
+        }
+
+        console.log("✅ Received userId:", userId); // Debugging log
+
+        // ✅ Store `userId` in localStorage
+        localStorage.setItem("userId", userId);
+        console.log("✅ userId stored in localStorage:", localStorage.getItem("userId"));
+
+        // Debugging: Verify immediately after setting
+        if (localStorage.getItem("userId") !== userId) {
+            console.error("❌ Error: userId not correctly stored in localStorage!");
+        }
+
         console.log("✅ Login Successful, Redirecting...");
         navigate("/dashboard"); // Redirect on success
-      } else {
-        throw new Error(res.data.message || "Login failed");
-      }
     } catch (error: any) {
-      console.error("❌ Login Error:", error.response?.data?.message || error.message);
-      setError(error.response?.data?.message || "Login failed, try again.");
+        console.error("❌ Login Error:", error.response?.data?.message || error.message);
+        setError(error.response?.data?.message || "Login failed, try again.");
     }
-  };
+};
+
+
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:5000/auth/google";
